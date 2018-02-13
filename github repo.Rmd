@@ -23,8 +23,53 @@ summary(cars)
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+
+# Download some example PDB files
+library(bio3d)
+ids <- c("1TND_B","1AGR_A","1TAG_A","1GG2_A","1KJY_A","4G5Q_A")
+files <- get.pdb(ids, split = TRUE)
+
+# Extract and align the chains we are interested in
+pdbs <- pdbaln(files, fit = TRUE)
+# Print to screen a summary of the 'pdbs' object
+pdbs
+
+# Access the first 5 rows, and 8 columns
+pdbs$ali[1:5, 1:8]
+# Associated residues numbers
+pdbs$resno[1:5, 1:8]
+
+# Inspect alignment for gaps
+gaps <- gap.inspect(pdbs$ali)
+# Indices of non-gap columns
+head(gaps$f.inds)
+# Access non-gap columns
+pdbs$ali[, gaps$f.inds]
+# Calculate sequence identity
+seqidentity(pdbs)
+
+# Calculate RMSD
+rmsd(pdbs)
+
+# Calculate RMSD
+rd <- rmsd(pdbs)
+# Clustering
+hc <- hclust(as.dist(rd))
+grps <- cutree(hc, k=3)
+# Plot results as dendrogram
+hclustplot(hc, k=3)
+
+# Perform PCA
+pc <- pca(pdbs)
+plot(pc, col=grps)
+# NMA all structures
+modes <- nma(pdbs)
+plot(modes, pdbs, col=grps, spread=TRUE)
+#tar -xvf muscle.darwin
+#mv muscle .darwin/usr/local/bin/muscle
+
+#tar (tape archive)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
